@@ -1,0 +1,9 @@
+{
+    postrotate
+        /usr/bin/setfacl -m g:splunk:rx /var/log/cron
+        /usr/bin/setfacl -m g:splunk:rx /var/log/maillog
+        /usr/bin/setfacl -m g:splunk:rx /var/log/messages
+        /usr/bin/setfacl -m g:splunk:rx /var/log/secure
+        /usr/bin/setfacl -m g:splunk:rx /var/log/spooler
+    endscript
+}
