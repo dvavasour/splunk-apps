@@ -11,6 +11,10 @@ Where I keep my Splunk apps.
 ### Reload configs (props.conf, transforms.conf etc)
 `http://splunk-dev.dv-aws.uk/en-GB/debug/refresh`
 
+### Example using CURL to fire event to HEC
+`curl -k https://splunk-dev.dv-aws.uk:8088/services/collector -H 'Authorization: Splunk dd8a1447-0952-4782-8834-55345d93d2ae' -d '{"event": "ifttt from curl"}'`
+
+
 # Cheat Sheets
 ## Original Cheat Sheet
 ![Alt Text for Original Cheet Sheet](https://github.com/dvavasour/splunk-apps/blob/master/jpeg/Splunk_Spellbook.jpeg)
