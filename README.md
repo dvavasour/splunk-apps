@@ -22,4 +22,24 @@ Where I keep my Splunk apps.
 ## CFRT Cheat Sheet
 ![Alt Text for CFRT Cheet Sheet](https://github.com/dvavasour/splunk-apps/blob/master/jpeg/CFRT_Notes_V2.jpeg)
 
+# NHSD Technical Lessons
+## Field Calculation Order
+https://docs.splunk.com/Documentation/Splunk/8.0.1/Knowledge/Searchtimeoperationssequence
 
+## Datamodel Lookups
+When you add a "lookup" to a datamodel, you specify the lookup-file field names and the returned aliases. This doesn't work: the aliases are applied late, and the datamodel works on the lookup-file field names. The implications are:
+* You cannot use the same lookup table twice for (for example) source postcode from ODS and also target postcode from ODS. The conflicting lookup-file field names will break it
+* When you reference the results using tstats, it seems you have to do so by lookup-file field name, not the alias
+* When you pivot, the alias is presented. However, when you open the pivot in search it uses the lookup-file field name and renames it in the search
+
+## Custom Geo Lookup
+https://www.splunk.com/en_us/blog/tips-and-tricks/use-custom-polygons-in-your-choropleth-maps.html
+https://docs.splunk.com/Documentation/Splunk/8.0.1/Knowledge/Configuregeospatiallookups
+
+The XPath bit works, but there's one more thing: the name of the lookup needs to match the Folder/Schema in the KML file
+
+## Chloropleth Field Ordering
+It seems that you need the key value for a chloropleth to be in column 1 (0?) of the results - best to fix this before feeding into the `geom` command
+
+## Map Tiles
+If you use an external mapping base (i.e. Openstreetmap), the tiles don't go through Splunk, it directs the browser to download them. This means that the browser must have access to the source of tiles.
