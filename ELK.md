@@ -87,7 +87,7 @@ Then enter a message.
 
 Use Postman to check the events are being indexed, with `GET` method to:
 
-[https://<IP Address>:9200/logstash-*/_search](https://<IP Address>:9200/logstash-*/_search)
+[https://<e.g. 10.0.0.1>:9200/logstash-*/_search](https://10.0.0.1:9200/logstash-*/_search)
 
 * `logstash-*` matches any index created for logstash events
 * `_search` returns all events
