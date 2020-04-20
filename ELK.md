@@ -37,19 +37,24 @@ update-alternatives --config java
 
 And check Java with: `java -version`
 
+Install Elasticsearch
+```
+yum install elasticsearch-oss
+```
+
 Fix some parameters in `/etc/elasticsearch/elasticsearch.yml`:
 
-* `cluster.name`
-* `node.name`
-* `network.host`
-* `discover.seed_hosts`
+* `cluster.name` (*Arbitrary String*)
+* `node.name` (*Arbitrary String*)
+* `network.host` (*Local IP Address*)
+* `discover.seed_hosts` (*Local IP Address*)
+* `cluster.initial_master_nodes` (*Local IP Address*)
 
 Fix a kernal parameter: `sysctl -w vm.max_map_count=262144` and the number of file handles with `ulimit -n 65535` (or edit `/etc/security/limits.conf`)
 
 And start Elasticsearch
 
 ```
-yum install elasticsearch-oss
 sudo systemctl start elasticsearch.service
 ```
 
