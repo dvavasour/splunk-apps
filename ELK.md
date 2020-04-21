@@ -183,3 +183,12 @@ output {
 And restart logstash
 
 Then start filebeat on the filebeat server.
+
+
+Add on a netflow listener, at the end of the input section in filebeat.yml
+
+```
+- type: netflow
+  host: "0.0.0.0:2055"
+  protocols: [ v5, v9, ipfix ]
+```
