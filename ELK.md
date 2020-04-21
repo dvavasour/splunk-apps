@@ -115,3 +115,71 @@ Start the service and look to <IP-address>:5601
 
 Start by Management -> Index Patterns and set up `logstash-*` and `@timestamp` for the index pattern, then use discover to see test events.
 
+## Filebeat
+
+```
+yum install filebeat
+```
+
+Then edit `/etc/filebeat/filebeat.yml`:
+
+*input section*
+```
+...
+enabled: true
+paths:
+  - /var/log/messages
+document_type: syslog
+```
+
+*general section*
+```
+...
+tags: ["tagname1", "tagname2"]
+
+fields:
+  dunstan_field: dunstan_value
+```
+
+*outputs section*
+
+* turn off elasticsearch output
+* turn on logstash output, setting host and port
+
+Now go back to the logstash server and `/etc/logstash/conf.d` and create a file `beats.conf`
+```
+
+input {
+    beats {
+        port => "5043"
+    }
+
+}
+
+filter {
+    if [type] == "syslog" {
+        grok {
+            match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSL\
+OGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{\
+GREEDYDATA:syslog_message}" }
+        }
+        date {
+            match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss"\
+ ]
+        }
+    }
+}
+
+output {
+    elasticsearch {
+        hosts => ["10.0.3.132"]
+        index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+        document_type => "%{[@metadata][type]}"
+    }
+
+}
+```
+
+And restart logstash
+
+Then start filebeat on the filebeat server.
