@@ -28,7 +28,7 @@ type=rpm-md
 EOF
 ```
 
-Install Java
+Install Java *(check if this is necessary, or if a current Elastic version bundles its own JVM)*
 
 ```
 yum install -y java-1.8.0-openjdk
@@ -42,6 +42,8 @@ Install Elasticsearch
 yum install elasticsearch-oss
 ```
 
+Set the JVM heap size in `/etc/elasticsearch/jvm.options` with both figures at about 1/3 total memory (less if bunking up with logstash) and definitely less than 32GB
+
 Fix some parameters in `/etc/elasticsearch/elasticsearch.yml`:
 
 * `cluster.name` (*Arbitrary String*)
@@ -49,6 +51,22 @@ Fix some parameters in `/etc/elasticsearch/elasticsearch.yml`:
 * `network.host` (*Local IP Address*)
 * `discover.seed_hosts` (*Local IP Address*)
 * `cluster.initial_master_nodes` (*Local IP Address*)
+
+Setting system parameters (should supersede the below)
+
+```
+mkdir /etc/systemd/system/elasticsearch.service.d
+cat > /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf <<EOF
+[Service]
+LimitNOFILE=131072
+LimitNOPROC=8192
+LimitMEMLOCK=infinity
+LimitFSIZE=infinity
+LimitAS=infinity
+EOF
+```
+
+
 
 Fix a kernel parameter: `sysctl -w vm.max_map_count=262144` and the number of file handles with `ulimit -n 65535` (or edit `/etc/security/limits.conf`)
 
