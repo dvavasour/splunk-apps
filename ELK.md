@@ -52,6 +52,52 @@ Fix some parameters in `/etc/elasticsearch/elasticsearch.yml`:
 * `discover.seed_hosts` (*Local IP Address*)
 * `cluster.initial_master_nodes` (*Local IP Address*)
 
+Alternatively we'll blat a parameter file over that one that's there:
+
+```
+cat > /etc/elasticsearch.elasticsearch.yml <<EOF
+cluster.name: lab
+
+node.name: lab1
+
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+
+bootstrap.memory_lock: true
+
+network.host: 0.0.0.0
+http.port: 9200
+
+discovery.type: 'single-node'
+
+indices.query.bool.max_clause_count: 8192
+search.max_buckets: 250000
+
+action.destructive_requires_name: 'true'
+
+reindex.remote.whitelist: '*:*'
+
+xpack.monitoring.enabled: 'true'
+xpack.monitoring.collection.enabled: 'true'
+xpack.monitoring.collection.interval: 30s
+
+xpack.security.enabled: 'true'
+xpack.security.audit.enabled: 'false'
+
+node.ml: 'false'
+xpack.ml.enabled: 'false'
+
+xpack.watcher.enabled: 'false'
+
+xpack.ilm.enabled: 'true'
+
+xpack.sql.enabled: 'true'
+EOF
+```
+
+Now, having set `xpack.security.enabled` to true means we're going to have to set up users. This is done using
+`/usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive`. Alternatively turn it off.
+
 Setting system parameters (should supersede the below)
 
 ```
@@ -59,13 +105,22 @@ mkdir /etc/systemd/system/elasticsearch.service.d
 cat > /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf <<EOF
 [Service]
 LimitNOFILE=131072
-LimitNOPROC=8192
+LimitNPROC=8192
 LimitMEMLOCK=infinity
 LimitFSIZE=infinity
 LimitAS=infinity
 EOF
 ```
 
+And also
+
+```
+cat > /etc/sysctl.d/70-elasticsearch.conf <<EOF
+vm.max_map_count=262144
+EOF
+```
+
+Reread these parameters with `systemctl daemon-reload`
 
 
 Fix a kernel parameter: `sysctl -w vm.max_map_count=262144` and the number of file handles with `ulimit -n 65535` (or edit `/etc/security/limits.conf`)
@@ -128,6 +183,73 @@ Set variables in `/etc/kibana/kibana.yml
 * `server.name="<The name the users will see>"`
 * `elasticsearch.hosts=["<elasticsearc-host>:9200"]`
 
+Alternatively we'll blat a parameter file over that one that's there:
+```
+cat > /etc/kibana/kibana.yml
+server.name: 'lab1'
+server.host: '0.0.0.0'
+server.port: 5601
+
+server.maxPayloadBytes: 8388608
+
+elasticsearch.hosts: ['http://127.0.0.1:9200']
+elasticsearch.username: 'kibana'
+elasticsearch.password: 'changeme'
+elasticsearch.requestTimeout: 132000
+elasticsearch.shardTimeout: 120000
+
+kibana.index: '.kibana'
+
+#kibana.defaultAppId: 'dashboard/<dashboard_id>'
+
+#logging.quiet: true
+#logging.timezone: 'UTC'
+
+vega.enableExternalUrls: true
+
+console.enabled: true
+
+xpack.security.enabled: true
+xpack.security.audit.enabled: false
+
+xpack.monitoring.enabled: true
+xpack.monitoring.kibana.collection.enabled: true
+xpack.monitoring.kibana.collection.interval: 30000
+
+xpack.monitoring.ui.enabled: true
+xpack.monitoring.min_interval_seconds: 30
+#xpack.monitoring.ui.container.elasticsearch.enabled: 'false'
+
+#xpack.apm.enabled: true
+#xpack.apm.ui.enabled: true
+
+xpack.grokdebugger.enabled: true
+xpack.searchprofiler.enabled: true
+
+xpack.graph.enabled: false
+
+xpack.infra.enabled: true
+#xpack.infra.sources.default.logAlias: 'filebeat-*'
+#xpack.infra.sources.default.metricAlias: 'metricbeat-*'
+#xpack.infra.sources.default.fields.timestamp: '@timestamp'
+#xpack.infra.sources.default.fields.message: ['message','@message']
+#xpack.infra.sources.default.fields.tiebreaker: '_doc'
+#xpack.infra.sources.default.fields.host: 'beat.hostname'
+#xpack.infra.sources.default.fields.container: 'docker.container.name'
+#xpack.infra.sources.default.fields.pod: 'kubernetes.pod.name'
+
+xpack.ml.enabled: false
+
+xpack.reporting.enabled: false
+#xpack.reporting.encryptionKey: ''
+
+#xpack.spaces.enabled: true
+#xpack.spaces.maxSpaces: 1000
+```
+
+Again, consider whether you want to have `xpack.security.enabled` set. The entries for `xpack.apm` and `xpack.spaces` are turned off because of bugs in Kibana - it it works with them on, turn them on.
+
+Worth starting by hand first so you'll see java packages being bundled/built.
 
 Start the service and look to <IP-address>:5601
 
