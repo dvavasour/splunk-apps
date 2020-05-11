@@ -2,9 +2,45 @@
 
 * [ELK](#ELK)
   * [Elasticsearch](#Elasticsearch)
+  * [Environment](#Environment)
   * [Logstash](#Logstash)
+  * [Kibana](#Kibana)
+  * [Filebeat](#Filebeat)
 
 
+## Environment
+
+Have worked mostly on t2.small or t3a.small spot instances. Four instances, three with 10GB of storage and an Elasticsearch instance with bigger. Nice open security groups and for my current purposes the UserData is:
+```
+#!/bin/bash -xe
+
+yum update -y
+yum install -y emacs
+yum install -y sysstat
+yum install -y telnet
+yum install -y git
+yum install -y java-1.8.0-openjdk
+
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+cat > /etc/yum.repos.d/elasticsearch.repo <<EOF
+[elasticsearch]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+
+useradd dunstan
+cd ~ec2-user; tar cf - .ssh | (cd ~dunstan; tar xf - ; chown -R dunstan:dunstan .)
+
+usermod -p '$1$9fd9W5tD$MNx07vBuS3vVXewBoIbi40' dunstan
+usermod -G wheel dunstan
+```
+You may want your own variations, especially if your name isn't `dunstan` and your preferred output of `md5pass` isn't the password in my head.
 
 ## Elasticsearch
 ### Installation on EC2 Instance
