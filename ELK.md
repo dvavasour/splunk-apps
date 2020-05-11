@@ -194,7 +194,8 @@ cd /usr/share/logstash
 bin/logstash -e 'input { stdin { } } output { elasticsearch { hosts => ["10.0.3.166"] } }'
 ```
 
-Then enter a message.
+Then enter a message. Wait for it to start up first, there will be oodles of output from Java. Eventually it will say something like `The stdin plugin is now waiting for input:` and `[Api Webserver] agent - Successfully started Logstash API endpoint {:port=>9600}
+`
 
 Use Postman to check the events are being indexed, with `GET` method to:
 
