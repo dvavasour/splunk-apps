@@ -288,7 +288,7 @@ Again, consider whether you want to have `xpack.security.enabled` set. The entri
 
 Worth starting by hand first so you'll see java packages being bundled/built.
 
-Start the service and look to <IP-address>:5601
+Start the service and look to `<IPV4-address>:5601`  **Kibana doesn't seem to work with IPV6**
 
 Start by Management -> Index Patterns and set up `logstash-*` and `@timestamp` for the index pattern, then use discover to see test events.
 
